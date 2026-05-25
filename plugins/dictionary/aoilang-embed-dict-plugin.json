@@ -1,0 +1,19 @@
+{
+    "identifier": "aoilang-embed-dict-plugin",
+    "type": "dictionary",
+    "displayName": "小葵日语词典",
+    "icon": "dict",
+    "version": "1.0.0",
+    "config": {
+        "proxyUrl": "http://127.0.0.1:18080/"
+    },
+    "langList": [
+        {
+          "lang": "chinese (simplified)",
+          "code": "chinese-simplified",
+          "nativeLang": "简体中文"
+        }
+    ],
+    "scriptSHA256": "7d503d02f41cf4aca44cac4d7721a7824968d33bf150971c3c35ae911726a553",
+    "script": "async function getDictText(text, from, to, axios, t, config) {\r\nconst proxyUrl = (config && config.proxyUrl) || \"http://127.0.0.1:18080/\";\r\nconst url = `https://aoilang.com/dict/${encodeURIComponent(text)}`;\r\n\r\nconst response = await axios.get(proxyUrl.replace(/\\/?$/, \"/\") + url, {\r\nheaders: {\r\n\"X-Requested-With\": \"XMLHttpRequest\"\r\n}\r\n});\r\n\r\nconst doc = new DOMParser().parseFromString(response.data, \"text/html\");\r\nconst entry =\r\ndoc.querySelector(\"body .container .entry-wrapper\") ||\r\ndoc.querySelector(\".entry-wrapper\");\r\n\r\nif (!entry) return t(\"No result\");\r\n\r\nentry.querySelectorAll(\"a[href]\").forEach((link) => {\r\nconst href = link.getAttribute(\"href\") || \"\";\r\nif (href.startsWith(\"/\")) {\r\nlink.setAttribute(\"href\", \"https://aoilang.com\" + href);\r\n}\r\nlink.setAttribute(\"target\", \"_blank\");\r\nlink.setAttribute(\"rel\", \"noopener noreferrer\");\r\n});\r\n\r\nreturn entry.innerHTML;\r\n}\r\n\r\nwindow.getDictText = getDictText;"
+}
